@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+论文/*.aux
+论文/*.log
+论文/*.out
+论文/*.toc
+论文/*.synctex.gz
