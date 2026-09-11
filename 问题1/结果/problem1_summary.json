@@ -1,0 +1,22 @@
+{
+  "method": "SOC dynamic programming on a 1 kWh lattice",
+  "slots": 144,
+  "total_purchase_kwh": 59483.43274999999,
+  "total_cost_yuan": 35131.45656540333,
+  "baseline_cost_without_storage_yuan": 48052.046590846665,
+  "storage_cost_saving_yuan": 12920.590025443336,
+  "total_load_kwh": 111024.80809999998,
+  "total_pv_forecast_kwh": 55482.835666666666,
+  "total_charge_kwh": 20733.333333333332,
+  "total_discharge_kwh": 16794.0,
+  "total_curtailed_kwh": 2.126983333333886,
+  "initial_soc_kwh": 6000.0,
+  "terminal_soc_kwh": 6000.0,
+  "min_soc_kwh": 1200.0,
+  "max_soc_kwh": 10800.0,
+  "max_charge_kw": 5000.0,
+  "max_discharge_kw": 4293.0,
+  "simultaneous_charge_discharge_slots": 0,
+  "max_balance_residual_kw": 0.0,
+  "objective_recalculation_error_yuan": 2.9103830456733704e-11
+}
