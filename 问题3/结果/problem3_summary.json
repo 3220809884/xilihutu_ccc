@@ -1,0 +1,42 @@
+{
+  "period": "2025-02-01 to 2025-12-31",
+  "n_days": 334,
+  "alpha": 0.8,
+  "terminal_target_kwh": 6000.0,
+  "initial_soc_kwh": 7827.277455768037,
+  "final_soc_kwh": 6213.97555773206,
+  "scipy_version": "1.16.3",
+  "input_sha256": {
+    "公共代码/数据/master_10min.csv": "89f2889312d4462f09547900cf953b8436aac67499eef9397bd18f38eee1765e",
+    "公共代码/数据/forecast_attachment3_hourly.csv": "2593c5b724586f5c32b08aa02dca09248f5ee122ea2c788b82c8ee45d16b3592",
+    "问题2/结果/problem2_dispatch_all_2025.csv": "0ca13dc0552e29c9e577b344e14fa8e53652654fa1f2a2715cf9f02efb6c2980",
+    "问题2/结果/problem2_information_audit.csv": "0692072a4d5e63eca5744c663bddbbaa057695e3551d7995f5ed0e2e12070bd1"
+  },
+  "checks": {
+    "energy_balance_max_abs_kwh": 4.547473508864641e-13,
+    "soc_dynamic_max_abs_kwh": 9.094947017729282e-13,
+    "soc_continuity_max_abs_kwh": 0.0,
+    "soc_min_kwh": 1200.0,
+    "soc_max_kwh": 10800.0,
+    "max_charge_kw": 5000.0,
+    "max_discharge_kw": 5000.0,
+    "simultaneous_charge_discharge_count": 0
+  },
+  "max_milp_gap": 9.333967312839874e-08,
+  "rolling_solves": 1460,
+  "plan_kwh": 21926941.747194543,
+  "adjusted_purchase_kwh": 22172412.273943216,
+  "adjustment_up_kwh": 245470.52674867897,
+  "adjustment_down_kwh": 0.0,
+  "charge_kwh": 6435275.027809788,
+  "discharge_kwh": 5214024.744234162,
+  "emergency_kwh": 29380.227861977688,
+  "spill_kwh": 3041352.7232629033,
+  "plan_cost_yuan": 13461929.887125827,
+  "adjustment_cost_yuan": 256551.7129582541,
+  "emergency_cost_yuan": 173776.57354744215,
+  "total_cost_yuan": 13892258.173631523,
+  "same_forecast_midnight_baseline_cost_yuan": 13948842.110997131,
+  "saving_vs_midnight_yuan": 56583.93736560829,
+  "saving_vs_midnight_fraction": 0.004056532930500234
+}

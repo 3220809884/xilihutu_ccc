@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "days": 334,
+  "realized_slots": 48096,
+  "all_year_rolling_windows": 1460,
+  "verified_rolling_rows": 210024,
+  "xlsx_sheets": [
+    "计划购电量",
+    "调整购电量",
+    "充放电量",
+    "紧急购电量"
+  ],
+  "future_residual_perturbation_test": "passed",
+  "units_and_fee_boundary_tests": "passed",
+  "header_alignment": "00:00-00:10 ... 23:50-24:00"
+}
