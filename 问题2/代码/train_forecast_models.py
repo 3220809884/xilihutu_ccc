@@ -23,16 +23,15 @@ warnings.filterwarnings("ignore")
 SLOTS = 144
 
 
-def load_daily(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[str]]:
+def load_daily(path: Path) -> tuple[np.ndarray, np.ndarray, list[str]]:
     df = pd.read_csv(path)
     df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
     dates = sorted(df["date"].unique())
     pivot_load = df.pivot(index="date", columns="slot", values="load_actual_kw").loc[dates]
     pivot_pv = df.pivot(index="date", columns="slot", values="pv_actual_kw").loc[dates]
-    pivot_q3 = df.pivot(index="date", columns="slot", values="pv_forecast_q3_latest_kw").loc[dates]
     if pivot_load.shape[1] != SLOTS or pivot_pv.shape[1] != SLOTS:
         raise ValueError("expected exactly 144 slots per day")
-    return pivot_load.to_numpy(float), pivot_pv.to_numpy(float), pivot_q3.to_numpy(float), dates
+    return pivot_load.to_numpy(float), pivot_pv.to_numpy(float), dates
 
 
 def metrics(actual: np.ndarray, pred: np.ndarray) -> dict[str, float]:
@@ -239,7 +238,7 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=Path("问题2/结果"))
     args = parser.parse_args()
 
-    load, pv, pv_q3, dates = load_daily(args.data)
+    load, pv, dates = load_daily(args.data)
     n = len(dates)
     n_train = int(n * 0.70)
     n_val = int(n * 0.15)
@@ -264,8 +263,6 @@ def main() -> None:
         # SARIMAX is the slowest model, but remains part of this reproducible
         # first trial so the result can be compared with the baselines.
         preds["sarimax"] = sarimax_walk_forward(history, test)
-        if name == "pv":
-            preds["attachment3_q3_latest"] = pv_q3[split2:]
         predictions[name] = preds
         for method, pred in preds.items():
             item = {"target": name, "method": method, **metrics(test, pred)}

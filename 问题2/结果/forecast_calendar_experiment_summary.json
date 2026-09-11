@@ -18,10 +18,10 @@
       "MAPE_percent_masked": 2.8331930086837467
     },
     "pv": {
-      "method": "attachment3_q3_latest",
-      "MAE_kW": 54.73390749627976,
-      "RMSE_kW": 121.46990488263329,
-      "MAPE_percent_masked": 51.60867932032315
+      "method": "standardized_ridge_no_calendar",
+      "MAE_kW": 94.21998497989905,
+      "RMSE_kW": 183.46707168871532,
+      "MAPE_percent_masked": 45.043514822471934
     }
   }
 }

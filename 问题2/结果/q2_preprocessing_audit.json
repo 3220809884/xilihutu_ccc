@@ -1,5 +1,19 @@
 {
   "source": "公共代码/数据/master_10min.csv",
+  "allowed_input_columns": [
+    "date",
+    "slot",
+    "time_end",
+    "price_fixed_yuan_per_kwh",
+    "load_actual_kw",
+    "pv_actual_kw"
+  ],
+  "excluded_input_columns": [
+    "price_volatile_yuan_per_kwh",
+    "pv_forecast_q1_kw",
+    "pv_forecast_q3_latest_kw",
+    "issue_datetime"
+  ],
   "rows_before": 52560,
   "rows_after": 52560,
   "inserted_date_slot_rows": 0,

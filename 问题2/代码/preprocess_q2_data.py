@@ -18,6 +18,14 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[2]
 SLOTS = 144
 TARGETS = ("load_actual_kw", "pv_actual_kw")
+ALLOWED_Q2_COLUMNS = (
+    "date",
+    "slot",
+    "time_end",
+    "price_fixed_yuan_per_kwh",
+    "load_actual_kw",
+    "pv_actual_kw",
+)
 
 # 2025 mainland China statutory holiday periods and official make-up workdays.
 # Kept in one explicit configuration block so the team can audit or replace it.
@@ -125,11 +133,15 @@ def main() -> None:
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
-    raw = pd.read_csv(args.input)
+    source = pd.read_csv(args.input)
     required = {"date", "slot", *TARGETS}
-    missing_columns = required.difference(raw.columns)
+    missing_columns = required.difference(source.columns)
     if missing_columns:
         raise ValueError(f"missing required columns: {sorted(missing_columns)}")
+    # Problem 2 may use only the fixed price from Attachment 1 and historical
+    # load/PV observations from Attachment 2. Exclude Attachment 3 forecasts,
+    # Attachment 4 prices and other later-question fields by construction.
+    raw = source[[c for c in ALLOWED_Q2_COLUMNS if c in source.columns]].copy()
     if raw.duplicated(["date", "slot"]).any():
         raise ValueError("duplicate date-slot keys in canonical master table")
 
@@ -140,6 +152,8 @@ def main() -> None:
     events: list[dict[str, object]] = []
     audit: dict[str, object] = {
         "source": str(args.input.relative_to(ROOT)),
+        "allowed_input_columns": list(raw.columns),
+        "excluded_input_columns": [c for c in source.columns if c not in raw.columns],
         "rows_before": int(len(raw)),
         "rows_after": int(len(data)),
         "inserted_date_slot_rows": int(inserted_rows),

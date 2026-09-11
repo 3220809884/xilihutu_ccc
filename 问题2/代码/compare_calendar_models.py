@@ -207,10 +207,6 @@ def main() -> None:
             grouped_models, calendar_xgb, series, calendar, test_days
         )
 
-        if target == "pv" and "pv_forecast_q3_latest_kw" in df.columns:
-            q3 = df.pivot(index="date", columns="slot", values="pv_forecast_q3_latest_kw").loc[dates].to_numpy(float)
-            target_predictions["attachment3_q3_latest"] = np.nan_to_num(q3[split2:], nan=0.0)
-
         all_predictions[target] = target_predictions
         for method, pred in target_predictions.items():
             overall = {"target": target, "method": method, "day_type": "all", **metric_row(actual, pred)}
