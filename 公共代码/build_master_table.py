@@ -190,7 +190,9 @@ def build_master(source_dir: Path, output_dir: Path) -> tuple[Path, Path]:
         .merge(volatile_price, on=["date", "slot"], how="left")
     )
     master["time_end"] = master["slot"].map(canonical_time_end)
-    fixed = attachment1[["slot", "price_fixed_yuan_per_kwh", "pv_forecast_q1_kw"]]
+    fixed = attachment1[
+        ["slot", "price_fixed_yuan_per_kwh", "load_kw", "pv_forecast_q1_kw"]
+    ].rename(columns={"load_kw": "load_q1_kw"})
     master = master.merge(fixed, on="slot", how="left", validate="many_to_one")
 
     forecast_hourly = _read_attachment3(source_dir / "附件3.xlsx")
@@ -251,6 +253,7 @@ def build_master(source_dir: Path, output_dir: Path) -> tuple[Path, Path]:
             "slot",
             "time_end",
             "price_fixed_yuan_per_kwh",
+            "load_q1_kw",
             "price_volatile_yuan_per_kwh",
             "load_actual_kw",
             "pv_actual_kw",
