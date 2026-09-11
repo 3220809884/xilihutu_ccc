@@ -1,0 +1,39 @@
+{
+  "source": "公共代码/数据/master_10min.csv",
+  "rows_before": 52560,
+  "rows_after": 52560,
+  "inserted_date_slot_rows": 0,
+  "date_start": "2025-01-01",
+  "date_end": "2025-12-31",
+  "day_type_counts": {
+    "holiday": 28,
+    "makeup_workday": 5,
+    "weekend": 89,
+    "workday": 243
+  },
+  "targets": {
+    "load_actual_kw": {
+      "missing_cells": 0,
+      "invalid_cells": 0,
+      "isolated_outliers": 0,
+      "repaired_cells": 0
+    },
+    "pv_actual_kw": {
+      "missing_cells": 0,
+      "invalid_cells": 0,
+      "isolated_outliers": 0,
+      "repaired_cells": 0
+    }
+  },
+  "standardization": {
+    "fit_through": "2025-09-12",
+    "load_actual_kw": {
+      "mean": 4694.082565234205,
+      "std": 1411.345942008481
+    },
+    "pv_actual_kw": {
+      "mean": 2441.99776413671,
+      "std": 3007.9850484675
+    }
+  }
+}

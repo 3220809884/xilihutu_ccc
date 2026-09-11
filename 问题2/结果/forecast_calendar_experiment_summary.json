@@ -1,0 +1,27 @@
+{
+  "data": "问题2/结果/q2_preprocessed_10min.csv",
+  "train_days": 255,
+  "validation_days": 54,
+  "test_days": 56,
+  "train_validation_end": "2025-11-05",
+  "test_start": "2025-11-06",
+  "test_end": "2025-12-31",
+  "test_day_type_counts": {
+    "weekend": 16,
+    "workday": 40
+  },
+  "best_by_target_rmse": {
+    "load": {
+      "method": "grouped_calendar_xgboost",
+      "MAE_kW": 118.29178187376961,
+      "RMSE_kW": 156.69912084646765,
+      "MAPE_percent_masked": 2.8331930086837467
+    },
+    "pv": {
+      "method": "attachment3_q3_latest",
+      "MAE_kW": 54.73390749627976,
+      "RMSE_kW": 121.46990488263329,
+      "MAPE_percent_masked": 51.60867932032315
+    }
+  }
+}
