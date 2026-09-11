@@ -1,0 +1,54 @@
+{
+  "solver_status": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "objective_yuan": 35126.948589289634,
+  "total_grid_purchase_kwh": 59482.69899835391,
+  "total_charge_kwh": 20740.66613168725,
+  "total_discharge_kwh": 16799.939566666668,
+  "energy_initial_kwh": 6000.0,
+  "energy_final_kwh": 6000.0,
+  "energy_min_kwh": 1200.0,
+  "energy_max_kwh": 10800.0,
+  "minimum_supply_margin_kwh": -2.2737367544323206e-13,
+  "maximum_soc_residual_kwh": 8.313350008393172e-13,
+  "maximum_simultaneous_charge_discharge_kwh": 0.0,
+  "selected_grid_purchase_kwh": {
+    "10:00-10:10": 0.0,
+    "12:00-12:10": 486.40289999999993,
+    "14:00-14:10": 0.0,
+    "16:00-16:10": 394.9314833333333,
+    "18:00-18:10": 636.9826166666667,
+    "20:00-20:10": 0.0
+  },
+  "four_hour_totals": [
+    {
+      "interval": "0:00-4:00",
+      "charge_kwh": 4499.999999999999,
+      "discharge_kwh": 0.0
+    },
+    {
+      "interval": "4:00-8:00",
+      "charge_kwh": 833.3333333333333,
+      "discharge_kwh": 6365.8412
+    },
+    {
+      "interval": "8:00-12:00",
+      "charge_kwh": 4787.964288065848,
+      "discharge_kwh": 1702.9969833333334
+    },
+    {
+      "interval": "12:00-16:00",
+      "charge_kwh": 5286.0351769547315,
+      "discharge_kwh": 91.1013833333335
+    },
+    {
+      "interval": "16:00-20:00",
+      "charge_kwh": 0.0,
+      "discharge_kwh": 5780.1318833333335
+    },
+    {
+      "interval": "20:00-24:00",
+      "charge_kwh": 5333.333333333332,
+      "discharge_kwh": 2859.8681166666665
+    }
+  ]
+}
