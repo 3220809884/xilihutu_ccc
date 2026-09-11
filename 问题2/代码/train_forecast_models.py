@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from xgboost import XGBRegressor
 
@@ -22,15 +23,16 @@ warnings.filterwarnings("ignore")
 SLOTS = 144
 
 
-def load_daily(path: Path) -> tuple[np.ndarray, np.ndarray, list[str]]:
+def load_daily(path: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[str]]:
     df = pd.read_csv(path)
     df["date"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
     dates = sorted(df["date"].unique())
     pivot_load = df.pivot(index="date", columns="slot", values="load_actual_kw").loc[dates]
     pivot_pv = df.pivot(index="date", columns="slot", values="pv_actual_kw").loc[dates]
+    pivot_q3 = df.pivot(index="date", columns="slot", values="pv_forecast_q3_latest_kw").loc[dates]
     if pivot_load.shape[1] != SLOTS or pivot_pv.shape[1] != SLOTS:
         raise ValueError("expected exactly 144 slots per day")
-    return pivot_load.to_numpy(float), pivot_pv.to_numpy(float), dates
+    return pivot_load.to_numpy(float), pivot_pv.to_numpy(float), pivot_q3.to_numpy(float), dates
 
 
 def metrics(actual: np.ndarray, pred: np.ndarray) -> dict[str, float]:
@@ -64,6 +66,17 @@ def rolling_baseline(history: np.ndarray, actual_test: np.ndarray, k: int) -> np
     return np.asarray(out)
 
 
+def weighted_lag_1_7(history: np.ndarray, actual_test: np.ndarray, w1: float = 0.7) -> np.ndarray:
+    """Use recent-day and same-weekday observations."""
+    h = history.copy()
+    out = []
+    for y in actual_test:
+        p = w1 * h[-1] + (1.0 - w1) * h[-7]
+        out.append(p)
+        h = np.vstack([h, y])
+    return np.asarray(out)
+
+
 def exponential_smoothing(history: np.ndarray, actual_test: np.ndarray, alpha: float = 0.4) -> np.ndarray:
     level = history[-1].copy()
     out = []
@@ -84,6 +97,80 @@ def xgb_features(series: np.ndarray, day: int, slot: int) -> np.ndarray:
     angle = 2 * np.pi * slot / SLOTS
     vals.extend([np.sin(angle), np.cos(angle)])
     return np.asarray(vals, dtype=float)
+
+
+def enhanced_features(series: np.ndarray, day: int, slot: int, weekday: int) -> np.ndarray:
+    """Lag, seasonal and local-curve features for one target slot."""
+    def at(d: int, s: int) -> float:
+        return float(series[d, s % SLOTS])
+
+    vals = [at(day - k, slot) for k in (1, 2, 3, 7, 14)]
+    vals += [float(np.mean(series[day - 3 : day, slot])), float(np.mean(series[day - 7 : day, slot]))]
+    vals += [at(day - 1, slot - 2), at(day - 1, slot - 1), at(day - 1, slot + 1), at(day - 1, slot + 2)]
+    angle = 2 * np.pi * slot / SLOTS
+    dow_angle = 2 * np.pi * weekday / 7
+    vals += [np.sin(angle), np.cos(angle), np.sin(dow_angle), np.cos(dow_angle)]
+    return np.asarray(vals, dtype=float)
+
+
+def enhanced_tree_walk_forward(train: np.ndarray, val: np.ndarray, test: np.ndarray, dates: list[str]) -> np.ndarray:
+    history = np.vstack([train, val])
+    history_dates = dates[: len(history)]
+    models: list[XGBRegressor] = []
+    for slot in range(SLOTS):
+        X = np.vstack([
+            enhanced_features(history, d, slot, pd.Timestamp(history_dates[d]).weekday())
+            for d in range(14, len(history))
+        ])
+        y = history[14:, slot]
+        model = XGBRegressor(
+            n_estimators=120, max_depth=3, learning_rate=0.04,
+            subsample=0.9, colsample_bytree=0.9,
+            objective="reg:squarederror", n_jobs=2, random_state=2026,
+        )
+        model.fit(X, y, verbose=False)
+        models.append(model)
+
+    observed = history.copy()
+    out = []
+    for offset, actual in enumerate(test):
+        day = len(observed)
+        weekday = pd.Timestamp(dates[day]).weekday()
+        row = np.zeros(SLOTS, dtype=float)
+        for slot, model in enumerate(models):
+            f = enhanced_features(observed, day, slot, weekday).reshape(1, -1)
+            row[slot] = max(0.0, float(model.predict(f)[0]))
+        out.append(row)
+        observed = np.vstack([observed, actual])
+    return np.asarray(out)
+
+
+def ridge_walk_forward(train: np.ndarray, val: np.ndarray, test: np.ndarray, dates: list[str]) -> np.ndarray:
+    """Regularized dynamic regression as a transparent time-series model."""
+    history = np.vstack([train, val])
+    history_dates = dates[: len(history)]
+    models: list[Ridge] = []
+    for slot in range(SLOTS):
+        X = np.vstack([
+            enhanced_features(history, d, slot, pd.Timestamp(history_dates[d]).weekday())
+            for d in range(14, len(history))
+        ])
+        y = history[14:, slot]
+        model = Ridge(alpha=10.0)
+        model.fit(X, y)
+        models.append(model)
+    observed = history.copy()
+    out = []
+    for offset, actual in enumerate(test):
+        day = len(observed)
+        weekday = pd.Timestamp(dates[day]).weekday()
+        row = np.zeros(SLOTS, dtype=float)
+        for slot, model in enumerate(models):
+            f = enhanced_features(observed, day, slot, weekday).reshape(1, -1)
+            row[slot] = max(0.0, float(model.predict(f)[0]))
+        out.append(row)
+        observed = np.vstack([observed, actual])
+    return np.asarray(out)
 
 
 def xgb_walk_forward(train: np.ndarray, val: np.ndarray, test: np.ndarray) -> np.ndarray:
@@ -152,7 +239,7 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=Path("问题2/结果"))
     args = parser.parse_args()
 
-    load, pv, dates = load_daily(args.data)
+    load, pv, pv_q3, dates = load_daily(args.data)
     n = len(dates)
     n_train = int(n * 0.70)
     n_val = int(n * 0.15)
@@ -167,18 +254,27 @@ def main() -> None:
         preds = {
             "previous_day": rolling_baseline(history, test, 1),
             "mean_3_days": rolling_baseline(history, test, 3),
+            "seasonal_7_days": rolling_baseline(history, test, 7),
+            "weighted_1_day_7_day": weighted_lag_1_7(history, test),
             "exp_smoothing_alpha_0.4": exponential_smoothing(history, test, 0.4),
             "xgboost": xgb_walk_forward(train, val, test),
+            "enhanced_xgboost": enhanced_tree_walk_forward(train, val, test, dates),
+            "dynamic_ridge": ridge_walk_forward(train, val, test, dates),
         }
         # SARIMAX is the slowest model, but remains part of this reproducible
         # first trial so the result can be compared with the baselines.
         preds["sarimax"] = sarimax_walk_forward(history, test)
+        if name == "pv":
+            preds["attachment3_q3_latest"] = pv_q3[split2:]
         predictions[name] = preds
         for method, pred in preds.items():
             item = {"target": name, "method": method, **metrics(test, pred)}
             records.append(item)
         pd.DataFrame({"date": dates[split2:] , **{f"slot_{i:03d}": preds["xgboost"][:, i] for i in range(SLOTS)}}).to_csv(
             args.out / f"forecast_{name}_xgboost_test.csv", index=False
+        )
+        pd.DataFrame({"date": dates[split2:] , **{f"slot_{i:03d}": preds["enhanced_xgboost"][:, i] for i in range(SLOTS)}}).to_csv(
+            args.out / f"forecast_{name}_enhanced_xgboost_test.csv", index=False
         )
 
     pd.DataFrame(records).sort_values(["target", "RMSE_kW"]).to_csv(args.out / "forecast_model_metrics.csv", index=False)
