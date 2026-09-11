@@ -1,0 +1,52 @@
+{
+  "4-2": {
+    "status": "passed",
+    "formal_days": 334,
+    "slots": 48096,
+    "optimization_windows": 365,
+    "xlsx_sheets": [
+      "计划购电量",
+      "充放电量",
+      "紧急购电量"
+    ],
+    "physics": {
+      "energy_balance_max_abs_kwh": 1.333546606474556e-10,
+      "soc_dynamic_max_abs_kwh": 1.4527046232615248e-10,
+      "soc_continuity_max_abs_kwh": 0.0,
+      "soc_min_kwh": 1200.0,
+      "soc_max_kwh": 10800.0,
+      "max_charge_kw": 4999.9999999998,
+      "max_discharge_kw": 4999.9999999998,
+      "simultaneous_charge_discharge_count": 0
+    }
+  },
+  "4-3": {
+    "status": "passed",
+    "formal_days": 334,
+    "slots": 48096,
+    "optimization_windows": 1460,
+    "xlsx_sheets": [
+      "计划购电量",
+      "调整购电量",
+      "充放电量",
+      "紧急购电量"
+    ],
+    "physics": {
+      "energy_balance_max_abs_kwh": 1.3358203432289883e-10,
+      "soc_dynamic_max_abs_kwh": 1.4555290306361712e-10,
+      "soc_continuity_max_abs_kwh": 0.0,
+      "soc_min_kwh": 1200.0,
+      "soc_max_kwh": 10800.0,
+      "max_charge_kw": 4999.9999999998,
+      "max_discharge_kw": 4999.9999999998,
+      "simultaneous_charge_discharge_count": 0
+    }
+  },
+  "logic_tests": {
+    "future_price_perturbation": "passed",
+    "january_only_selection": "passed",
+    "scenario_expectation_equivalence": "passed",
+    "box_robust_equivalence": "passed",
+    "actual_daily_prices_in_xlsx": "passed"
+  }
+}
